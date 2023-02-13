@@ -10,25 +10,29 @@
     <button type="button" v-on:click="search()">検索</button>
   </form>
   <div id="app" v-if="jsonItems.length != 0">
-    <table style="margin-left: auto; margin-right: auto">
+    <table border="1" style="margin-left: auto; margin-right: auto">
       <tr>
         <th>title</th>
         <th>isbn10</th>
-        <th>isbn16</th>
+        <th>isbn13</th>
+      </tr>
+      <tr v-for="item of jsonItems" v-bind:key="item.volumeInfo.title">
+        <td v-if="item.volumeInfo.industryIdentifiers.length == 2">
+          {{ item.volumeInfo.title }}
+        </td>
+        <td v-if="item.volumeInfo.industryIdentifiers.length == 2">
+          {{ item.volumeInfo.industryIdentifiers[0].identifier }}
+        </td>
+        <td v-if="item.volumeInfo.industryIdentifiers.length == 2">
+          {{ item.volumeInfo.industryIdentifiers[1].identifier }}
+        </td>
       </tr>
     </table>
-    <ul v-for="item of jsonItems" v-bind:key="item.volumeInfo.title">
-      <li style="text-align: center">
-        {{ item.volumeInfo.title }}
-      </li>
-    </ul>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-// import VueGoodTablePlugin from "vue-good-table";
-// import the styles
 import "vue-good-table/dist/vue-good-table.css";
 export default {
   data: function () {
