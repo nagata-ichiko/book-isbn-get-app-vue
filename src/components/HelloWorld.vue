@@ -1,42 +1,60 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
+  <form id="search-form">
+    <input
+      class="form-text"
+      type="text"
+      id="isbn"
+      placeholder="ISBNコードを入力"
+      v-model="isbn"
+    />
+    <button type="button" v-on:click="search()">検索</button>
+  </form>
+  <div id="app" v-if="jsonItems.length != 0">
+    <table style="margin-left: auto; margin-right: auto">
+      <tr>
+        <th>title</th>
+        <th>isbn10</th>
+        <th>isbn16</th>
+      </tr>
+    </table>
+    <ul v-for="item of jsonItems" v-bind:key="item.volumeInfo.title">
+      <li style="text-align: center">
+        {{ item.volumeInfo.title }}
+      </li>
     </ul>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+// import VueGoodTablePlugin from "vue-good-table";
+// import the styles
+import "vue-good-table/dist/vue-good-table.css";
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+  data: function () {
+    return {
+      jsonItems: [],
+    };
+  },
+  methods: {
+    search() {
+      const code = document.getElementById("isbn").value;
+      for (var i = 0; i < 10; i++) {
+        axios
+          .get(
+            "https://www.googleapis.com/books/v1/volumes?q=" +
+              code +
+              "&projection=FULL&startIndex=" +
+              i
+          )
+          .then((response) => {
+            console.log(response.data);
+            this.jsonItems = this.jsonItems.concat(response.data.items);
+          });
+      }
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
