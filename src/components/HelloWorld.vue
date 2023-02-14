@@ -6,8 +6,14 @@
       id="isbn"
       placeholder="ISBNコードを入力"
       v-model="isbn"
+      style="width: 330px"
     />
-    <button type="button" v-on:click="search()">検索</button>
+    <div>
+      <button type="button" v-on:click="search()">検索</button>
+      <button type="button" v-on:click="deleteItems()">いらないの削除</button>
+      <button type="button" v-on:click="getisbnten()">isbn10コピー</button>
+      <button type="button" v-on:click="getisbntr()">isbn13コピー</button>
+    </div>
   </form>
   <div id="app" v-if="jsonItems.length != 0">
     <table border="1" style="margin-left: auto; margin-right: auto">
@@ -15,33 +21,46 @@
         <th>title</th>
         <th>isbn10</th>
         <th>isbn13</th>
+        <th>select</th>
       </tr>
-      <tr v-for="item of jsonItems" v-bind:key="item.volumeInfo.title">
-        <td v-if="item.volumeInfo.industryIdentifiers.length == 2">
-          {{ item.volumeInfo.title }}
+      <tr v-for="item of jsonItems" v-bind:key="item.select">
+        <td>
+          {{ item.title }}
         </td>
-        <td v-if="item.volumeInfo.industryIdentifiers.length == 2">
-          {{ item.volumeInfo.industryIdentifiers[0].identifier }}
+        <td>
+          {{ item.tenisbn }}
         </td>
-        <td v-if="item.volumeInfo.industryIdentifiers.length == 2">
-          {{ item.volumeInfo.industryIdentifiers[1].identifier }}
+        <td>
+          {{ item.thrtenisbn }}
+        </td>
+        <td>
+          <input type="checkbox" v-model="item.select" />
         </td>
       </tr>
     </table>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 import "vue-good-table/dist/vue-good-table.css";
+
+class bookitem {
+  constructor(ti, te, th, flg) {
+    this.title = ti;
+    this.tenisbn = te;
+    this.thrtenisbn = th;
+    this.select = flg;
+  }
+}
 export default {
   data: function () {
     return {
-      jsonItems: [],
+      jsonItems: [bookitem],
     };
   },
   methods: {
     search() {
+      this.jsonItems = [];
       const code = document.getElementById("isbn").value;
       for (var i = 0; i < 10; i++) {
         axios
@@ -53,9 +72,60 @@ export default {
           )
           .then((response) => {
             console.log(response.data);
-            this.jsonItems = this.jsonItems.concat(response.data.items);
+            for (const element of response.data.items) {
+              if (element.volumeInfo.industryIdentifiers.length == 1) continue;
+              this.jsonItems.push(
+                new bookitem(
+                  element.volumeInfo.title,
+                  element.volumeInfo.industryIdentifiers[0].identifier,
+                  element.volumeInfo.industryIdentifiers[1].identifier,
+                  false
+                )
+              );
+            }
           });
       }
+    },
+    deleteItems() {
+      var buf = [];
+      for (var i in this.jsonItems) {
+        if (this.jsonItems[i].select) {
+          buf.push(this.jsonItems[i]);
+        }
+      }
+      this.jsonItems = buf;
+    },
+    getisbnten() {
+      var buf = "";
+      for (var i in this.jsonItems) {
+        if (this.jsonItems[i].select) {
+          buf += this.jsonItems[i].tenisbn + "\n";
+        }
+      }
+      navigator.clipboard.writeText(buf).then(
+        () => {
+          alert("コピーに成功しました。");
+        },
+        () => {
+          alert("コピーに失敗しました。");
+        }
+      );
+    },
+    getisbntr() {
+      var buf = "";
+      for (var i in this.jsonItems) {
+        if (this.jsonItems[i].select) {
+          buf += this.jsonItems[i].thrtenisbn + "\n";
+        }
+      }
+      navigator.clipboard.writeText(buf).then(
+        () => {
+          alert("コピーに成功しました。");
+        },
+        () => {
+          alert("コピーに失敗しました。");
+        }
+      );
     },
   },
 };
