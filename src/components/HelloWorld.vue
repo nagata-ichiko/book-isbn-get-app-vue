@@ -4,13 +4,13 @@
       class="form-text"
       type="text"
       id="isbn"
-      placeholder="ISBNコードを入力"
+      placeholder="キーワードを入力"
       v-model="isbn"
       style="width: 330px"
     />
     <div>
       <button type="button" v-on:click="search()">検索</button>
-      <button type="button" v-on:click="deleteItems()">いらないの削除</button>
+      <button type="button" v-on:click="deleteItems()">非選択項目を削除</button>
       <button type="button" v-on:click="getisbnten()">isbn10コピー</button>
       <button type="button" v-on:click="getisbntr()">isbn13コピー</button>
     </div>
