@@ -62,16 +62,17 @@ export default {
     search() {
       this.jsonItems = [];
       const code = document.getElementById("isbn").value;
-      for (var i = 0; i < 500; i += 10) {
+      for (var i = 0; i < 400; i += 40) {
         axios
           .get(
             "https://www.googleapis.com/books/v1/volumes?q=" +
               code +
-              "&projection=FULL&orderBy=relevance&startIndex=" +
+              "&projection=FULL&maxResults=40&orderBy=relevance&startIndex=" +
               i
           )
           .then((response) => {
             for (const element of response.data.items) {
+              if (element.volumeInfo.industryIdentifiers == undefined) return;
               if (element.volumeInfo.industryIdentifiers.length == 1) continue;
               this.jsonItems.push(
                 new bookitem(
