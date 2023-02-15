@@ -78,7 +78,7 @@ export default {
                   element.volumeInfo.title,
                   element.volumeInfo.industryIdentifiers[0].identifier,
                   element.volumeInfo.industryIdentifiers[1].identifier,
-                  false
+                  true
                 )
               );
             }
